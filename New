@@ -1,0 +1,66 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "Key ESP Menu",
+    LoadingTitle = "กำลังโหลด...",
+    LoadingSubtitle = "Rayfield UI",
+    ConfigurationSaving = { Enabled = false },
+    KeySystem = false,
+})
+
+local Tab = Window:CreateTab("ESP", 4483362458)
+local Workspace = game:GetService("Workspace")
+
+local function applyKeyESP(object)
+    -- ค้นหาวัตถุที่มีคำว่า Key หรือมีระบบ ProximityPrompt (ปุ่มกดเก็บของ)
+    local isKey = string.find(string.lower(object.Name), "key") 
+               or object:FindFirstChildOfClass("ProximityPrompt") 
+               or object:FindFirstChildOfClass("ClickDetector")
+
+    if isKey and (object:IsA("Model") or object:IsA("BasePart")) then
+        if not object:FindFirstChild("KeyESPBox") then
+            local box = Instance.new("SelectionBox")
+            box.Name = "KeyESPBox"
+            box.Adornee = object
+            box.Color3 = Color3.fromRGB(255, 255, 0) -- สีเหลืองเรืองแสง
+            box.LineThickness = 0.08
+            box.SurfaceTransparency = 1
+            box.Parent = object
+        end
+    end
+end
+
+local function removeKeyESP()
+    for _, item in ipairs(Workspace:GetDescendants()) do
+        local box = item:FindFirstChild("KeyESPBox")
+        if box then
+            box:Destroy()
+        end
+    end
+end
+
+Tab:CreateToggle({
+    Name = "เปิด ESP กุญแจและไอเทม (Key ESP)",
+    CurrentValue = false,
+    Flag = "KeyESPFlag",
+    Callback = function(Value)
+        if Value then
+            -- สแกนลึกลงไปทุกโฟลเดอร์และทุกเก๊ะใน Workspace
+            for _, item in ipairs(Workspace:GetDescendants()) do
+                applyKeyESP(item)
+            end
+            Rayfield:Notify({
+                Title = "ESP",
+                Content = "เปิดแสดงตำแหน่งกุญแจแล้ว",
+                Duration = 2,
+            })
+        else
+            removeKeyESP()
+            Rayfield:Notify({
+                Title = "ESP",
+                Content = "ปิดการแสดงผลแล้ว",
+                Duration = 2,
+            })
+        end
+    end,
+})
